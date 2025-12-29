@@ -79,7 +79,7 @@ def test_post_with_params():
     transport = transports.Transport()
     with requests_mock.mock() as m:
         m.post("http://tests.python-zeep.org/test.xml?param_x=value_x", text="responseBody")
-        result = transport.post("http://tests.python-zeep.org/test.xml", message="requestBody", headers={}, params={"param_x": "value_x"})
+        result = transport.post("http://tests.python-zeep.org/test.xml", operation="operation", message="requestBody", headers={}, params={"param_x": "value_x"})
         assert result.text == "responseBody"
 
 def test_post_xml_with_params():
@@ -87,5 +87,5 @@ def test_post_xml_with_params():
     with requests_mock.mock() as m:
         m.post("http://tests.python-zeep.org/test.xml?param_x=value_x", text="responseBody")
         envelope = ET.Element("a")
-        result = transport.post_xml("http://tests.python-zeep.org/test.xml", envelope=envelope, headers={}, params={"param_x": "value_x"})
+        result = transport.post_xml("http://tests.python-zeep.org/test.xml", operation="operation", envelope=envelope, headers={}, params={"param_x": "value_x"})
         assert result.text == "responseBody"
