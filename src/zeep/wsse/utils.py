@@ -1,6 +1,7 @@
 import datetime
 from uuid import uuid4
 
+import pytz
 from lxml import etree
 from lxml.builder import ElementMaker
 
@@ -28,7 +29,7 @@ def get_security_header(doc):
 
 def get_timestamp(timestamp=None, zulu_timestamp=None):
     timestamp = timestamp or datetime.datetime.now(datetime.timezone.utc)
-    timestamp = timestamp.replace(tzinfo=datetime.timezone.utc, microsecond=0)
+    timestamp = timestamp.replace(tzinfo=pytz.utc, microsecond=0)
     if zulu_timestamp:
         return timestamp.isoformat().replace("+00:00", "Z")
     else:

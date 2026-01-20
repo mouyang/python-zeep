@@ -1,0 +1,22 @@
+name: Get Upstream Updates
+run-name: Get updates from upstream project.
+on:
+  schedule:
+    - cron: '0 0 * * *' 
+  workflow_dispatch:
+jobs:
+  upstream-update:
+    if: contains('refs/heads/main', github.ref)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Forked Repository
+        uses: actions/checkout@v6
+      - name: Rebase on mvantellingen/python-zeep
+        run: |
+          git config --global user.name "python-zeep-admin"
+          git config --global user.email "mouyang@users.noreply.github.com"
+          git remote add upstream https://github.com/mvantellingen/python-zeep.git
+          git checkout main
+          git fetch upstream main
+          git rebase -X theirs upstream/main
+          git push -f
