@@ -3,8 +3,8 @@
 # Copied from https://github.com/marketplace/actions/restrict-base-branch#-getting-started
 name: Validate Merge
 on:
-  pull_request_target:
-    types: [opened, edited, synchronize]
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
 
 jobs:
   restrict-base-branch:
