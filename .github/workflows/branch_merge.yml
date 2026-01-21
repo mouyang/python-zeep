@@ -1,0 +1,21 @@
+# Define which branches can merge to merge.  Especially disallow merging into 
+# main.
+# Copied from https://github.com/marketplace/actions/restrict-base-branch#-getting-started
+name: Validate Merge
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  restrict-base-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: praha-inc/action-restrict-base-branch@v1.0.2
+        with:
+          # The main <- main rule is needed because the action expects a rule for main.
+          # However it won't be used in this fork.
+          rules: |
+            release/* <- feature/* feature/**/*
+            main <- main
