@@ -15,6 +15,5 @@ jobs:
       - uses: praha-inc/action-restrict-base-branch@v1.0.2
         with:
           rules: |
-            feature/* <- feature/* feature/**/*
             release/* <- feature/* feature/**/*
             main <- main
