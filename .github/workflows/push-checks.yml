@@ -1,0 +1,20 @@
+name: Push Validation
+run-name: Push validation
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  branches-cut-from-origin-tag:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout Forked Repository
+        uses: actions/checkout@v6
+      - name: Check branch comes from parent tag
+        run: |
+          chmod +x ./scripts/default_git_config.sh ./scripts/branch_remote_tag_check.sh
+          ./scripts/default_git_config.sh
+          ./scripts/branch_remote_tag_check.sh
