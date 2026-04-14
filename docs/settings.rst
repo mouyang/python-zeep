@@ -30,6 +30,24 @@ it you can do the following:
         assert response.status_code == 200
         assert response.content
 
+To return both the deserialized value and response metadata you can enable
+``full_result``:
+
+.. code-block:: python
+
+    from zeep import Client
+
+    client = Client('http://my-endpoint.com/production.svc?wsdl')
+
+    with client.settings(full_result=True):
+        response = client.service.myoperation()
+
+        assert response.result is not None
+        assert response.http_response.status_code == 200
+        assert response.envelope is not None
+
+The ``raw_response`` and ``full_result`` settings are mutually exclusive.
+
 API
 ---
 

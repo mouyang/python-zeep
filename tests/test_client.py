@@ -4,7 +4,7 @@ import pytest
 import requests_mock
 
 from tests.utils import load_xml
-from zeep import client, xsd
+from zeep import SoapResult, client, xsd
 from zeep.exceptions import Error
 from zeep.transports import Transport
 from zeep.wsdl import Document
@@ -195,6 +195,44 @@ def test_service_proxy():
         m.post("http://example.com/stockquote", text=response)
         result = client_obj.service.GetLastTradePrice("foobar")
         assert result == 120.123
+
+
+@pytest.mark.requests
+def test_service_proxy_full_result():
+    client_obj = client.Client("tests/wsdl_files/soap.wsdl")
+
+    response = """
+    <?xml version="1.0"?>
+    <soapenv:Envelope
+        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:stoc="http://example.com/stockquote.xsd">
+       <soapenv:Header/>
+       <soapenv:Body>
+          <stoc:TradePrice>
+             <price>120.123</price>
+          </stoc:TradePrice>
+       </soapenv:Body>
+    </soapenv:Envelope>
+    """.strip()
+
+    with requests_mock.mock() as m:
+        m.post("http://example.com/stockquote", text=response, status_code=200)
+        with client_obj.settings(full_result=True):
+            result = client_obj.service.GetLastTradePrice("foobar")
+
+    assert isinstance(result, SoapResult)
+    assert result.result == 120.123
+    assert result.http_response.status_code == 200
+    assert result.envelope.tag == "{http://schemas.xmlsoap.org/soap/envelope/}Envelope"
+
+
+@pytest.mark.requests
+def test_service_proxy_full_result_raw_response_conflict():
+    client_obj = client.Client("tests/wsdl_files/soap.wsdl")
+
+    with client_obj.settings(full_result=True, raw_response=True):
+        with pytest.raises(ValueError, match="raw_response and full_result"):
+            client_obj.service.GetLastTradePrice("foobar")
 
 
 @pytest.mark.requests

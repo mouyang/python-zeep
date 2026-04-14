@@ -1,5 +1,6 @@
 from zeep.client import AsyncClient, CachingClient, Client
 from zeep.plugins import Plugin
+from zeep.results import SoapResult
 from zeep.settings import Settings
 from zeep.transports import Transport
 from zeep.xsd.valueobjects import AnyObject
@@ -10,6 +11,7 @@ __all__ = [
     "CachingClient",
     "Client",
     "Plugin",
+    "SoapResult",
     "Settings",
     "Transport",
     "AnyObject",
