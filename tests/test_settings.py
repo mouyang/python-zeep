@@ -27,3 +27,13 @@ def test_settings_set_context_with_exception():
         pass
     # Check that the original value returned
     assert settings.raw_response is False
+
+
+def test_settings_set_context_full_result():
+    settings = Settings()
+
+    assert settings.full_result is False
+    with settings(full_result=True):
+        assert settings.full_result is True
+
+    assert settings.full_result is False

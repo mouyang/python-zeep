@@ -7,6 +7,7 @@ from requests_toolbelt.multipart.decoder import MultipartDecoder
 from zeep import ns, plugins, wsa
 from zeep.exceptions import Fault, TransportError, XMLSyntaxError
 from zeep.loader import parse_xml
+from zeep.results import SoapResult
 from zeep.utils import as_qname, get_media_type, qname_attr
 from zeep.wsdl.attachments import MessagePack
 from zeep.wsdl.definitions import Binding, Operation
@@ -120,6 +121,9 @@ class SoapBinding(Binding):
         :type kwargs: dict
 
         """
+        if client.settings.raw_response and client.settings.full_result:
+            raise ValueError("raw_response and full_result cannot be enabled together")
+
         envelope, http_headers = self._create(
             operation, args, kwargs, client=client, options=options
         )
@@ -132,7 +136,12 @@ class SoapBinding(Binding):
         if client.settings.raw_response:
             return response
 
-        return self.process_reply(client, operation_obj, response)
+        return self.process_reply(
+            client,
+            operation_obj,
+            response,
+            return_full_result=client.settings.full_result,
+        )
 
     async def send_async(self, client, options, operation, args, kwargs):
         """Called from the async service
@@ -149,6 +158,9 @@ class SoapBinding(Binding):
         :type kwargs: dict
 
         """
+        if client.settings.raw_response and client.settings.full_result:
+            raise ValueError("raw_response and full_result cannot be enabled together")
+
         envelope, http_headers = self._create(
             operation, args, kwargs, client=client, options=options
         )
@@ -161,9 +173,14 @@ class SoapBinding(Binding):
             return response
 
         operation_obj = self.get(operation)
-        return self.process_reply(client, operation_obj, response)
+        return self.process_reply(
+            client,
+            operation_obj,
+            response,
+            return_full_result=client.settings.full_result,
+        )
 
-    def process_reply(self, client, operation, response):
+    def process_reply(self, client, operation, response, return_full_result=False):
         """Process the XML reply from the server.
 
         :param client: The client with which the operation was called
@@ -175,6 +192,10 @@ class SoapBinding(Binding):
 
         """
         if response.status_code in (201, 202) and not response.content:
+            if return_full_result:
+                return SoapResult(
+                    result=None, http_response=response, envelope=None
+                )
             return None
 
         elif response.status_code != 200 and not response.content:
@@ -232,7 +253,10 @@ class SoapBinding(Binding):
 
         if message_pack:
             message_pack._set_root(result)
-            return message_pack
+            result = message_pack
+
+        if return_full_result:
+            return SoapResult(result=result, http_response=response, envelope=doc)
         return result
 
     def process_error(self, doc, operation):

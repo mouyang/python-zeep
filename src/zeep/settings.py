@@ -14,6 +14,8 @@ class Settings:
     :type strict: boolean
     :param raw_response: boolean to skip the parsing of the XML response by
      zeep but instead returning the raw data
+    :param full_result: boolean to return a SoapResult object containing the
+     deserialized result, raw response and parsed envelope
 
     :param forbid_dtd: disallow XML with a <!DOCTYPE> processing instruction
     :type forbid_dtd: bool
@@ -42,6 +44,7 @@ class Settings:
 
     strict = attr.ib(default=True)
     raw_response = attr.ib(default=False)
+    full_result = attr.ib(default=False)
 
     # transport
     force_https = attr.ib(default=True)
